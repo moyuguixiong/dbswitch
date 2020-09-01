@@ -19,25 +19,25 @@
      me.jin.service.Pay.PayService<br>
      me.jin.service.Log.PayLogService<br>
 #####3、支付方法伪代码<br>
-     public class PayServiceImpl{<br>
+     public class PayServiceImpl{
      @Autowired<br>
-     private PayLogService payLogService;<br>
+     private PayLogService payLogService;
      
-     @Autowired<br>
-     private PayMapper payMapper;<br>
+     @Autowired
+     private PayMapper payMapper;
      
      @Transactional<br>
-     public void pay(){<br>
-       //自动切换为Pay库的写数据源<br>
-        payMapper.update();//冻结余额<br>
-        //自动切换为Log库的写数据。<br>
-        payLogService.addFriozenLog();//日志库插入余额冻结日志<br>
-        //自动切换为Pay库的写数据源<br>
-        payMapper.update();//消费余额<br>
-        //自动切换为Log库的写数据。<br>
-        payLogService.addConsumerLog();//日志库插入余额消费日志<br>
-     }<br>
-     //方法支持完成，会自动清除当前数据源<br>
-     }<br>
+     public void pay(){
+       //自动切换为Pay库的写数据源
+        payMapper.update();//冻结余额
+        //自动切换为Log库的写数据。
+        payLogService.addFriozenLog();//日志库插入余额冻结日志
+        //自动切换为Pay库的写数据源
+        payMapper.update();//消费余额
+        //自动切换为Log库的写数据。
+        payLogService.addConsumerLog();//日志库插入余额消费日志
+     }
+     //方法支持完成，会自动清除当前数据源
+     }
       
      
