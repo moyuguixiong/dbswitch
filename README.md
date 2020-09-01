@@ -28,14 +28,16 @@
      
      @Transactional<br>
      public void pay(){
-       //自动切换为Pay库的写数据源
+       //自动切换为pay库的写数据源
+       //自动开启pay库事务
         payMapper.update();//冻结余额
-        //自动切换为Log库的写数据。
-        payLogService.addFriozenLog();//日志库插入余额冻结日志
-        //自动切换为Pay库的写数据源
+        //自动切换为log库的写数据。
+        payLogService.addFriozenLog();//日志库插入余额冻结日志,为了避免影响pay库事务，内部try-catch
+        //自动切换为pay库的写数据源
         payMapper.update();//消费余额
-        //自动切换为Log库的写数据。
-        payLogService.addConsumerLog();//日志库插入余额消费日志
+        //自动切换为log库的写数据。
+        payLogService.addConsumerLog();//日志库插入余额消费日志,为了避免影响pay库事务，内部try-catch
+        //成功自动提交pay库事务/失败自动回滚pay库事务
      }
      //方法支持完成，会自动清除当前数据源
      }
