@@ -26,7 +26,7 @@
      @Autowired
      private PayMapper payMapper;
      
-     @Transactional<br>
+     @Transactional
      public void pay(){
        //自动切换为pay库的写数据源
        //自动开启pay库事务
@@ -39,7 +39,7 @@
         payLogService.addConsumerLog();//日志库插入余额消费日志,为了避免影响pay库事务，内部try-catch
         //成功自动提交pay库事务/失败自动回滚pay库事务
      }
-     //方法支持完成，会自动清除当前数据源
+     //方法执行完成，自动清除当前数据源
      }
       
      
