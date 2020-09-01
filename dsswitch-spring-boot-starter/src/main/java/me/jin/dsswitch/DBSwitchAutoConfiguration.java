@@ -25,7 +25,7 @@ import java.util.Map;
 @Configuration
 @ConditionalOnBean(PackageDataSourceConfig.class)
 @EnableConfigurationProperties(DBSwitchProperties.class)
-@ConditionalOnProperty(prefix = "dbswitch", name = "enable", havingValue = "true")
+@ConditionalOnProperty(prefix = "dsswitch", name = "enable", havingValue = "true")
 public class DBSwitchAutoConfiguration {
 
     @Autowired
