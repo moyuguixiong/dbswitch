@@ -1,5 +1,6 @@
 package me.jin.dsswitch.transaction;
 
+import me.jin.dsswitch.datasource.RoutingDataSource;
 import org.apache.ibatis.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,37 +62,47 @@ public class MultiDBSpringManagedTransaction implements Transaction {
 //                TransactionSynchronizationManager.unbindResource(keyDynamicDataSource);
 //            }
 //        }
-        Connection finalConnection = DataSourceUtils.getConnection(this.dataSource);
-        if (this.connection == null) {
-            this.connection = finalConnection;
-            this.autoCommit = this.connection.getAutoCommit();
-            this.isConnectionTransactional = DataSourceUtils.isConnectionTransactional(this.connection, this
-                    .dataSource);
-            LOGGER.debug("JDBC Connection [" + this.connection + "] will"
-                    + (this.isConnectionTransactional ? " " : " not ") + "be managed by Spring");
+        boolean isDefaultDataSource = RoutingDataSource.isDefaultDataSource();
+        Connection connection = DataSourceUtils.getConnection(this.dataSource);
+        if (connection != null && isDefaultDataSource) {
+            //开启了事务，并且是默认数据源，返回事务连接
+            return connection;
         } else {
-            Connection currentConnection = dataSource.getConnection();
-            if (!isSameDB(finalConnection, currentConnection)) {
-                finalConnection = currentConnection;
-                // TODO: 2020-08-30  重点在这里，是否开启事务，关键在于是否设置connection的autocommit为true
-                // 这里已经完成了功能，用todo做关键步骤标记
-                finalConnection.setAutoCommit(true);
-            }
-
+            //1、开启了事务，但是非默认数据源，拿当前数据源
+            //2、未开始事务，拿当前数据源
+            return this.dataSource.getConnection();
         }
-        String catalog = finalConnection.getCatalog();
-        boolean autoCommit = finalConnection.getAutoCommit();
-        LOGGER.debug("database:" + catalog + ",autocommit:" + autoCommit);
-        return finalConnection;
+//        Connection finalConnection = DataSourceUtils.getConnection(this.dataSource);
+//        if (this.connection == null) {
+//            this.connection = finalConnection;
+//            this.autoCommit = this.connection.getAutoCommit();
+//            this.isConnectionTransactional = DataSourceUtils.isConnectionTransactional(this.connection, this
+//                    .dataSource);
+//            LOGGER.debug("JDBC Connection [" + this.connection + "] will"
+//                    + (this.isConnectionTransactional ? " " : " not ") + "be managed by Spring");
+//        } else {
+//            Connection currentConnection = dataSource.getConnection();
+//            if (!isSameDB(finalConnection, currentConnection)) {
+//                finalConnection = currentConnection;
+//                // TODO: 2020-08-30  重点在这里，是否开启事务，关键在于是否设置connection的autocommit为true
+//                // 这里已经完成了功能，用todo做关键步骤标记
+//                finalConnection.setAutoCommit(true);
+//            }
+//
+//        }
+//        String catalog = finalConnection.getCatalog();
+//        boolean autoCommit = finalConnection.getAutoCommit();
+//        LOGGER.debug("database:" + catalog + ",autocommit:" + autoCommit);
+//        return finalConnection;
     }
 
-    private boolean isSameDB(Connection c1, Connection c2) throws SQLException {
-        if (c1.getCatalog().equals(c2.getCatalog()) && c1.getMetaData().getUserName().equals(c2.getMetaData()
-                .getUserName())) {
-            return true;
-        }
-        return false;
-    }
+//    private boolean isSameDB(Connection c1, Connection c2) throws SQLException {
+//        if (c1.getCatalog().equals(c2.getCatalog()) && c1.getMetaData().getUserName().equals(c2.getMetaData()
+//                .getUserName())) {
+//            return true;
+//        }
+//        return false;
+//    }
 
     /**
      * Gets a connection from Spring transaction manager and discovers if this {@code Transaction} should manage

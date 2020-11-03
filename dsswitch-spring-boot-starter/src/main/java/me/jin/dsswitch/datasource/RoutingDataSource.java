@@ -40,6 +40,13 @@ public class RoutingDataSource extends AbstractRoutingDataSource {
         }
     }
 
+    public static boolean isDefaultDataSource() {
+        if (DEFAULT_DATA_SOURCE_NAME.get() != null && CURRENT_DATA_SOURCE_NAME.get() != null) {
+            return DEFAULT_DATA_SOURCE_NAME.get().equals(CURRENT_DATA_SOURCE_NAME.get());
+        }
+        return false;
+    }
+
     @Override
     protected Object determineCurrentLookupKey() {
         return CURRENT_DATA_SOURCE_NAME.get();
